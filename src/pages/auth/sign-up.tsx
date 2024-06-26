@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@radix-ui/react-label";
 import { Helmet } from "react-helmet-async";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -17,6 +17,8 @@ const signUpForm = z.object({
 type SignUpFormType = z.infer<typeof signUpForm>;
 
 export function SignUp() {
+
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -27,7 +29,12 @@ export function SignUp() {
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       console.log(data);
-      toast.success("Cadastro realizado com sucesso.", {});
+      toast.success("Cadastro realizado com sucesso!", {
+        action: {
+          label: "Login",
+          onClick: () => navigate("/auth/sign-in"),
+        }
+      });
       await new Promise((resolve) => setTimeout(resolve, 1000));
     } catch (error) {
       toast.error("Erro ao realizar cadastro.");
@@ -49,7 +56,7 @@ export function SignUp() {
               Acompanhe suas vendas pelo painel do parceiro
             </p>
           </div>
-          <form className="space-y-4" onSubmit={handleSingUp}>
+          <form className="space-y-4" onSubmit={handleSubmit(handleSingUp)}>
             <div className="space-y-2">
               <Label htmlFor="company-name">Nome do seu estabelecimento</Label>
               <Input
@@ -78,8 +85,8 @@ export function SignUp() {
               Finalizar Cadastro
             </Button>
             <p className="px-6 text-center text-sm leading-relaxed text-muted-foreground">
-              Ao Continuar, você concorda com nossos termos de serviço e
-              políticas de privacidade
+              Ao Continuar, você concorda com nossos <a href="#"className="underline underline-offset-4" >termos de serviço</a> e 
+              <a href="#"className="underline underline-offset-4" > políticas de privacidade</a>
             </p>
           </form>
         </div>

@@ -5,8 +5,9 @@ import { AppLayout } from "./pages/_layouts/app";
 import path from "path";
 import { AuthLayout } from "./pages/_layouts/auth";
 import { SignUp } from "./pages/auth/sign-up";
+import { Order } from "./pages/orders/orders";
 
-export const router = createBrowserRouter([
+export const appRouter = createBrowserRouter([
   {
     path: "/",
     element: <AppLayout />,
@@ -15,6 +16,10 @@ export const router = createBrowserRouter([
         path: "/",
         element: <Dashboard />,
       },
+      {
+        path: "/orders",
+        element: <Order />,
+      }
     ],
   },
   {
