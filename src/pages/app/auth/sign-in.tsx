@@ -5,8 +5,9 @@ import { Helmet } from "react-helmet-async";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { Link } from "react-router-dom";
-import { Ghost } from "lucide-react";
+import { Link, useSearchParams } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
+import { signIn } from "@/api/sign-in";
 
 const signInForm = z.object({
   email: z.string().email(),
@@ -14,20 +15,28 @@ const signInForm = z.object({
 
 type SignInForm = z.infer<typeof signInForm>;
 export function SignIn() {
+  const [searchParams] = useSearchParams();
   const {
     register,
     handleSubmit,
     formState: { isSubmitting },
-  } = useForm();
+  } = useForm<SignInForm>({
+    defaultValues: {
+      email: searchParams.get("email") || "",
+    },
+  });
 
-  async function handleSignIn(data: any) {
+  const { mutateAsync } = useMutation({
+    mutationFn: signIn,
+  });
+  async function handleSignIn(data: SignInForm) {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await mutateAsync(data);
       console.log(data);
       toast.success("Enviamos um link de autenticação para o seu e-mail.", {});
       await new Promise((resolve) => setTimeout(resolve, 1000));
-    } catch (error) {
-      toast.error("Credenciais invalidas.");
+    } catch (error: any) {
+      toast.error("Credenciais invalidas." + error);
     }
   }
 
