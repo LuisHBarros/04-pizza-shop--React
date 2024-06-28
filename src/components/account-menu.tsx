@@ -9,18 +9,28 @@ import {
 import { Button } from "./ui/button";
 import { Building, ChevronDown, LogOut } from "lucide-react";
 import { DropdownMenuLabel } from "@radix-ui/react-dropdown-menu";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { getProfile } from "@/api/get-profile";
 import { getManagedRestaurant } from "@/api/get-managed-restaurant";
 import { Skeleton } from "@/api/skeleton";
 import { Dialog } from "@radix-ui/react-dialog";
 import { DialogTrigger } from "./ui/dialog";
 import { StoreProfileDialog } from "./store-profile-dialog";
+import { useNavigate } from "react-router-dom";
+import { signOut } from "@/api/sign-out";
 
 export function AccountMenu() {
   const { data: profile, isLoading: isLoadingProfile } = useQuery({
     queryKey: ["profile"],
     queryFn: getProfile,
+  });
+  const navigate = useNavigate();
+
+  const { mutateAsync: signOutFn, isPending: isSignOut } = useMutation({
+    mutationFn: signOut,
+    onSuccess() {
+      navigate("/auth/sign-in", { replace: true });
+    },
   });
 
   const { data: restaurant, isLoading: isLoadingManagedRestaurant } = useQuery({
@@ -70,9 +80,18 @@ export function AccountMenu() {
               <span>Perfil da loja</span>
             </DropdownMenuItem>
           </DialogTrigger>
-          <DropdownMenuItem className="text-rose-500 dark:text-rose-400">
-            <LogOut className="mr-2 h-4 w-4" />
-            Logout
+          <DropdownMenuItem
+            className="text-rose-500 dark:text-rose-400"
+            asChild
+          >
+            <button
+              className="w-full"
+              onClick={() => signOutFn()}
+              disabled={isSignOut}
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              Logout
+            </button>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

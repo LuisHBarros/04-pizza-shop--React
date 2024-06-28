@@ -1,44 +1,112 @@
-import { DialogDescription, DialogTitle } from "@radix-ui/react-dialog";
-import { DialogContent, DialogFooter, DialogHeader } from "./ui/dialog";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
+
+import {
+  getManagedRestaurant,
+  ManagedRestaurant,
+} from "@/api/get-managed-restaurant";
+import { updateProfile } from "@/api/update-profile";
+
 import { Button } from "./ui/button";
+import {
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
-import { getManagedRestaurant } from "@/api/get-managed-restaurant";
-import { useQuery } from "@tanstack/react-query";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 
 const storeProfileSchema = z.object({
-  name: z.string().min(3),
-  description: z.string(),
+  name: z.string().min(1),
+  description: z.string().nullable(),
 });
 
+type StoreProfileSchema = z.infer<typeof storeProfileSchema>;
+
 export function StoreProfileDialog() {
-  const { data: managedRestaurant, isLoading: isLoadingManagedRestaurant } =
-    useQuery({
-      queryKey: ["managed-restaurant"],
-      queryFn: getManagedRestaurant,
-    });
-  console.log(managedRestaurant);
-  type StoreProfile = z.infer<typeof storeProfileSchema>;
-  const { register, handleSubmit } = useForm<StoreProfile>({
+  const queryClient = useQueryClient();
+
+  const { data: managedRestaurant } = useQuery({
+    queryKey: ["managed-restaurant"],
+    queryFn: getManagedRestaurant,
+    staleTime: Infinity,
+  });
+
+  const {
+    register,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = useForm<StoreProfileSchema>({
     resolver: zodResolver(storeProfileSchema),
-    defaultValues: {
-      name: managedRestaurant?.name || "",
-      description: managedRestaurant?.description || "",
+    values: {
+      name: managedRestaurant?.name ?? "",
+      description: managedRestaurant?.description ?? "",
     },
   });
+
+  const { mutateAsync: updateProfileFn } = useMutation({
+    mutationFn: updateProfile,
+    onMutate({ description, name }) {
+      const { cached } = updateManagedRestaurantCache({ description, name });
+
+      return { previousProfile: cached };
+    },
+    onError(_, __, context) {
+      if (context?.previousProfile) {
+        updateManagedRestaurantCache(context.previousProfile);
+      }
+    },
+  });
+
+  function updateManagedRestaurantCache({
+    name,
+    description,
+  }: StoreProfileSchema) {
+    const cached = queryClient.getQueryData<ManagedRestaurant>([
+      "managed-restaurant",
+    ]);
+
+    if (cached) {
+      queryClient.setQueryData<ManagedRestaurant>(["managed-restaurant"], {
+        ...cached,
+        name,
+        description,
+      });
+    }
+
+    return { cached };
+  }
+
+  async function handleUpdateProfile(data: StoreProfileSchema) {
+    try {
+      await updateProfileFn({
+        name: data.name,
+        description: data.description,
+      });
+
+      toast.success("Perfil atualizado com sucesso!");
+    } catch {
+      toast.error("Falha ao atualizar o perfil, tente novamente");
+    }
+  }
+
   return (
     <DialogContent>
       <DialogHeader>
         <DialogTitle>Perfil da loja</DialogTitle>
         <DialogDescription>
-          Atualize as informacoes do seu estabelecimento
+          Atualize as informações do seu estabelecimento visíveis ao seu cliente
         </DialogDescription>
       </DialogHeader>
-      <form action="">
+
+      <form onSubmit={handleSubmit(handleUpdateProfile)}>
         <div className="space-y-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
             <Label className="text-right" htmlFor="name">
@@ -46,9 +114,10 @@ export function StoreProfileDialog() {
             </Label>
             <Input className="col-span-3" id="name" {...register("name")} />
           </div>
+
           <div className="grid grid-cols-4 items-center gap-4">
             <Label className="text-right" htmlFor="description">
-              Descricao
+              Descrição
             </Label>
             <Textarea
               className="col-span-3"
@@ -57,9 +126,14 @@ export function StoreProfileDialog() {
             />
           </div>
         </div>
+
         <DialogFooter>
-          <Button variant="ghost">Cancelar</Button>
-          <Button type="submit" variant={"success"}>
+          <DialogClose asChild>
+            <Button variant="ghost" type="button">
+              Cancelar
+            </Button>
+          </DialogClose>
+          <Button type="submit" variant="success" disabled={isSubmitting}>
             Salvar
           </Button>
         </DialogFooter>
