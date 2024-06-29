@@ -1,51 +1,16 @@
-import { useQuery } from "@tanstack/react-query";
-import {
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "../../../components/ui/dialog";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableFooter,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../../../components/ui/table";
-import { getOrderDetail } from "@/api/get-order-detais";
-import { OrderStatus } from "@/components/order-status";
-import { OrderDetailsSkeleton } from "./order-details-skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
-export interface OrderDetailsProps {
-  orderId: string;
-  open: boolean;
-}
-
-export function OrderDetails({ orderId, open }: OrderDetailsProps) {
-  const { data: order } = useQuery({
-    queryKey: ["orderDetails", { orderId }],
-    queryFn: () => getOrderDetail({ orderId }),
-    enabled: open,
-  });
-
+export function OrderDetailsSkeleton() {
     return (
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Pedido: {orderId}</DialogTitle>
-          <DialogDescription>Detalhes do pedido</DialogDescription>
-        </DialogHeader>
-              {order ?
-                (
-        <div className="space-y-6">
+                <div className="space-y-6">
           <Table>
             <TableBody>
                 
                   <TableRow>
                 <TableCell className="text-muted-foreground">Status</TableCell>
                 <TableCell className="flex justify-end">
-                  <OrderStatus status={order.status} />
+                 <Skeleton className="h-5 w-20" />
                 </TableCell>
               </TableRow>
               <TableRow>
@@ -53,7 +18,8 @@ export function OrderDetails({ orderId, open }: OrderDetailsProps) {
                 <TableCell className="flex justify-end">
                   <div className="flex items-center gap-2">
                     <span className="font-medium text-muted-foreground">
-                      {order.customer.name}
+                 <Skeleton className="h-5 w-[164px]" />
+                      
                     </span>
                   </div>
                 </TableCell>
@@ -65,7 +31,8 @@ export function OrderDetails({ orderId, open }: OrderDetailsProps) {
                 <TableCell className="flex justify-end">
                   <div className="flex items-center gap-2">
                     <span className="font-medium text-muted-foreground">
-                      {order.customer.phone || "Não informado"}
+                 <Skeleton className="h-5 w-[140px]" />
+                      
                     </span>
                   </div>
                 </TableCell>
@@ -75,7 +42,7 @@ export function OrderDetails({ orderId, open }: OrderDetailsProps) {
                 <TableCell className="flex justify-end">
                   <div className="flex items-center gap-2">
                     <span className="font-medium text-muted-foreground">
-                      {order.customer.email}
+                    <Skeleton className="h-5 w-[200px]" />
                     </span>
                   </div>
                 </TableCell>
@@ -87,7 +54,7 @@ export function OrderDetails({ orderId, open }: OrderDetailsProps) {
                 <TableCell className="flex justify-end">
                   <div className="flex items-center gap-2">
                     <span className="font-medium text-muted-foreground">
-                      3 minutos
+                        <Skeleton className="h-5 w-[148px]" />
                     </span>
                   </div>
                 </TableCell>
@@ -104,24 +71,22 @@ export function OrderDetails({ orderId, open }: OrderDetailsProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {order.orderItems.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell className="">{item.product.name}</TableCell>
-                  <TableCell className="text-right">{item.quantity}</TableCell>
-                  <TableCell className="text-right">
-                    {(item.priceInCents / 10).toLocaleString("pt-BR", {
-                      style: "currency",
-                      currency: "BRL",
-                    })}
+              {Array.from({length: 2}).map((_, index) => (
+                <TableRow key={index}>
+                      <TableCell className="">
+                        <Skeleton className="h-5 w-[140px] " />
+                          
+                  </TableCell>
+                      <TableCell className="text-right">
+                        <Skeleton className="h-5 w-3 ml-auto" />
+                          
                   </TableCell>
                   <TableCell className="text-right">
-                    {((item.priceInCents / 10) * item.quantity).toLocaleString(
-                      "pt-BR",
-                      {
-                        style: "currency",
-                        currency: "BRL",
-                      },
-                    )}
+                        <Skeleton className="h-5 w-12 ml-auto" />
+                    
+                  </TableCell>
+                  <TableCell className="text-right">
+                        <Skeleton className="h-5 w-12 ml-auto" />
                   </TableCell>
                 </TableRow>
               ))}
@@ -130,20 +95,11 @@ export function OrderDetails({ orderId, open }: OrderDetailsProps) {
               <TableRow>
                 <TableCell colSpan={3}> Total do pedido</TableCell>
                 <TableCell className="text-right font-medium">
-                  {(order.totalInCents / 10).toLocaleString("pt-BR", {
-                    style: "currency",
-                    currency: "BRL",
-                  })}
+                    <Skeleton className="h-5 w-12" />
                 </TableCell>
               </TableRow>
             </TableFooter>
           </Table>
         </div>
-          ) : (
-        <OrderDetailsSkeleton />
-            
-          )}
-      </DialogContent>
-    );
+    )
 }
-

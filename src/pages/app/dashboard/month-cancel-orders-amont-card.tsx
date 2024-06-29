@@ -2,6 +2,7 @@ import { getMonthCancelOrdersAmount } from "@/api/get-month-canceled-orders-amou
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowDown, DollarSign } from "lucide-react";
+import { MetricCardSkeleton } from "./metric-card-skeleton";
 
 export function MonthCanceledOrdersAmountCard() {
     const { data } = useQuery({
@@ -17,7 +18,7 @@ export function MonthCanceledOrdersAmountCard() {
         <ArrowDown className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent className="space-y-1">
-               {data && (
+               {data ? (
           <>
             <span className="text-2xl font-bold tracking-tight">{data.amount.toLocaleString("pt-BR")}</span>
             <p className="text-xs text-muted-foreground">
@@ -35,6 +36,8 @@ export function MonthCanceledOrdersAmountCard() {
             </p>
           </>
           
+        ) :(
+            <MetricCardSkeleton />
         )}
         {/* <span className="text-2xl font-bold tracking-tight">{data?.amount}</span>
         <p className="text-xs text-muted-foreground">

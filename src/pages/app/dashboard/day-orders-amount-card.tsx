@@ -2,6 +2,7 @@ import { getDayOrdersAmount } from "@/api/get-day-orders-amount";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { UtensilsIcon } from "lucide-react";
+import { MetricCardSkeleton } from "./metric-card-skeleton";
 
 export function DayOrdersAmountCard() {
   const { data } = useQuery({
@@ -15,7 +16,7 @@ export function DayOrdersAmountCard() {
         <UtensilsIcon className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent className="space-y-1">
-        {data && (
+        {data ? (
           <>
             <span className="text-2xl font-bold tracking-tight">{data.data.amount.toLocaleString("pt-BR")}</span>
             <p className="text-xs text-muted-foreground">
@@ -33,6 +34,8 @@ export function DayOrdersAmountCard() {
             </p>
           </>
           
+        ) : (
+            <MetricCardSkeleton />
         )}
       </CardContent>
     </Card>

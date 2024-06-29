@@ -12,7 +12,7 @@ import { DropdownMenuLabel } from "@radix-ui/react-dropdown-menu";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { getProfile } from "@/api/get-profile";
 import { getManagedRestaurant } from "@/api/get-managed-restaurant";
-import { Skeleton } from "@/api/skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog } from "@radix-ui/react-dialog";
 import { DialogTrigger } from "./ui/dialog";
 import { StoreProfileDialog } from "./store-profile-dialog";

@@ -2,6 +2,7 @@ import { getMonthOrdersAmount } from "@/api/get-month-orders-amount";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { DollarSign, UtensilsCrossedIcon, UtensilsIcon } from "lucide-react";
+import { MetricCardSkeleton } from "./metric-card-skeleton";
 
 export function MonthOrdersAmountCard() {
     const { data } = useQuery({
@@ -16,7 +17,7 @@ export function MonthOrdersAmountCard() {
         <UtensilsIcon className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent className="space-y-1">
-               {data && (
+               {data ?  (
           <>
             <span className="text-2xl font-bold tracking-tight">{data.data.amount.toLocaleString("pt-BR")}</span>
             <p className="text-xs text-muted-foreground">
@@ -34,7 +35,11 @@ export function MonthOrdersAmountCard() {
             </p>
           </>
           
-        )}
+        ): 
+             (
+            <MetricCardSkeleton />
+        )
+        }
         {/* <span className="text-2xl font-bold tracking-tight">243</span>
         <p className="text-xs text-muted-foreground">
           <span className="text-emerald-500 dark:text-emerald-400">+10%</span>{" "}
