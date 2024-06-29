@@ -1,7 +1,6 @@
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -12,35 +11,11 @@ import {
   ResponsiveContainer,
   PieChart,
   Pie,
-  XAxis,
-  YAxis,
-  CartesianGrid,
   Cell,
 } from "recharts";
 import { BarChart } from "lucide-react";
-
-const data = [
-  {
-    product: "4 Queijos",
-    amount: 86,
-  },
-  {
-    product: "Calabresa",
-    amount: 70,
-  },
-  {
-    product: "Portuguesa",
-    amount: 60,
-  },
-  {
-    product: "Frango com Catupiry",
-    amount: 50,
-  },
-  {
-    product: "Marguerita",
-    amount: 40,
-  },
-];
+import { useQuery } from "@tanstack/react-query";
+import { getPopularProducts } from "@/api/get-popular-products";
 
 const COLORS = [
   colors.sky[500],
@@ -52,6 +27,10 @@ const COLORS = [
 ];
 
 export function PopularChart() {
+      const { data } = useQuery({
+    queryKey: ["popular-products", "metrics"],
+    queryFn: getPopularProducts,
+  })
   return (
     <Card className="col-span-3">
       <CardHeader className="pb-8">
@@ -66,8 +45,9 @@ export function PopularChart() {
         </div>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={240}>
-          <PieChart style={{ fontSize: "12px" }}>
+        {data && (
+                  <ResponsiveContainer width="100%" height={240}>
+           <PieChart style={{ fontSize: "12px" }}>
             <Pie
               data={data}
               dataKey="amount"
@@ -120,6 +100,7 @@ export function PopularChart() {
             </Pie>
           </PieChart>
         </ResponsiveContainer>
+            )}
       </CardContent>
     </Card>
   );

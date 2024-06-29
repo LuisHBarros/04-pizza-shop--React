@@ -17,119 +17,40 @@ import {
   Line,
   Tooltip,
 } from "recharts";
+import { useQuery } from "@tanstack/react-query";
+import { getDailyRevenueInPeriod } from "@/api/get-daily-revenue-in-period";
+import { Label } from "@/components/ui/label";
+import { DateRangePicker } from "@/components/date-range-picker";
+import { useMemo, useState } from "react";
+import { DateRange } from "react-day-picker";
+import { subDays } from "date-fns";
 
-const data = [
-  {
-    date: "01/01",
-    revenue: 4000,
-  },
-  {
-    date: "02/01",
-    revenue: 3000,
-  },
-  {
-    date: "03/01",
-    revenue: 2000,
-  },
-  {
-    date: "04/01",
-    revenue: 2780,
-  },
-  {
-    date: "05/01",
-    revenue: 1890,
-  },
-  {
-    date: "06/01",
-    revenue: 2390,
-  },
-  {
-    date: "07/01",
-    revenue: 3490,
-  },
-  {
-    date: "08/01",
-    revenue: 4000,
-  },
-  {
-    date: "09/01",
-    revenue: 3000,
-  },
-  {
-    date: "10/01",
-    revenue: 2000,
-  },
-  {
-    date: "11/01",
-    revenue: 2780,
-  },
-  {
-    date: "12/01",
-    revenue: 1890,
-  },
-  {
-    date: "13/01",
-    revenue: 2390,
-  },
-  {
-    date: "14/01",
-    revenue: 3490,
-  },
-  {
-    date: "15/01",
-    revenue: 4000,
-  },
-  {
-    date: "16/01",
-    revenue: 3000,
-  },
-  {
-    date: "17/01",
-    revenue: 2000,
-  },
-  {
-    date: "18/01",
-    revenue: 2780,
-  },
-  {
-    date: "19/01",
-    revenue: 1890,
-  },
-  {
-    date: "20/01",
-    revenue: 2390,
-  },
-  {
-    date: "21/01",
-    revenue: 3490,
-  },
-  {
-    date: "22/01",
-    revenue: 4000,
-  },
-  {
-    date: "23/01",
-    revenue: 3000,
-  },
-  {
-    date: "24/01",
-    revenue: 2000,
-  },
-  {
-    date: "25/01",
-    revenue: 2780,
-  },
-  {
-    date: "26/01",
-    revenue: 1890,
-  },
-  {
-    date: "27/01",
-    revenue: 2390,
-  },
-];
 
 export function RavenueChart() {
+  
+  const [ dateRange, setDateRange ] = useState<DateRange | undefined>({
+    from: subDays(new Date(), 7),
+    to: new Date(),
+  
+  });
+  
+  const { data } = useQuery({
+    queryKey: ["daily-revenue-in-period", "metrics", dateRange],
+    queryFn: () => getDailyRevenueInPeriod({
+      from: dateRange?.from,
+      to: dateRange?.to,
+    }),
+  })
+
+  const chartData = useMemo(() => {
+    return data?.map((item) => {
+      return {
+        date: item.date,
+        receipt: item.receipt / 100,
+      }
+    })
+  }, [data])
+
   return (
     <Card className="col-span-6">
       <CardHeader className="flex-row items-center justify-between pb-8">
@@ -141,10 +62,16 @@ export function RavenueChart() {
             Receita total do período
           </CardDescription>
         </div>
+        <div className="flex items-center gap-3">
+          <Label>
+            <DateRangePicker date={dateRange} onDateChange={setDateRange} />
+          </Label>
+        </div>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={240}>
-          <LineChart data={data} style={{ fontSize: "12px" }}>
+        {chartData && (
+          <ResponsiveContainer width="100%" height={240}>
+          <LineChart data={chartData} style={{ fontSize: "12px" }}>
             <CartesianGrid
               vertical={false}
               className="stroke-muted"
@@ -152,7 +79,7 @@ export function RavenueChart() {
             />
             <Line
               type="linear"
-              dataKey="revenue"
+              dataKey="receipt"
               strokeWidth={2}
               stroke={colors.blue[200]}
             />
@@ -171,6 +98,7 @@ export function RavenueChart() {
             <XAxis dataKey="date" tickLine={false} axisLine={false} dy={16} />
           </LineChart>
         </ResponsiveContainer>
+        )}
       </CardContent>
     </Card>
   );

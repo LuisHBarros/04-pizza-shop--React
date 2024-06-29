@@ -12,7 +12,7 @@ import { cancelOrder } from "@/api/cancel-order";
 import { GetOrdersResponse } from "@/api/get-orders";
 import { approveOrder } from "@/api/approve-order";
 import { deliverOrder } from "@/api/deliver-order";
-import { dispathOrder } from "@/api/dispath-order";
+import { dispatchOrder } from "@/api/dispatch-order";
 
 export interface OrderTableRowProps {
   order: {
@@ -59,9 +59,9 @@ export function OrderTableRow({ order }: OrderTableRowProps) {
         updateOrdersCache(orderId, "processing");
       },
     });
-  const { mutateAsync: dispathOrderFn, isPending: isDispathingOrder } =
+  const { mutateAsync: dispatchOrderFn, isPending: isDispatchingOrder } =
     useMutation({
-      mutationFn: dispathOrder,
+      mutationFn: dispatchOrder,
       async onSuccess(_, { orderId }) {
         updateOrdersCache(orderId, "delivering");
       },
@@ -122,8 +122,8 @@ export function OrderTableRow({ order }: OrderTableRowProps) {
           <Button
             variant="outline"
             className="h-7 px-2.5"
-            onClick={() => dispathOrderFn({ orderId: order.orderId })}
-            disabled={isDispathingOrder}
+            onClick={() => dispatchOrderFn({ orderId: order.orderId })}
+            disabled={isDispatchingOrder}
           >
             <ArrowRight className="mr-2 h-3 w-3" />
             Em entrega
@@ -133,7 +133,7 @@ export function OrderTableRow({ order }: OrderTableRowProps) {
           <Button
             variant="outline"
             className="h-7 px-2.5"
-            onClick={() => approveOrderFn({ orderId: order.orderId })}
+            onClick={() => deliverOrderFn({ orderId: order.orderId })}
             disabled={isDeliveringOrder}
           >
             <ArrowRight className="mr-2 h-3 w-3" />

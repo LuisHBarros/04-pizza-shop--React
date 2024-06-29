@@ -38,6 +38,4 @@ export const appRouter = createBrowserRouter([
       },
     ],
   },
-  // { path: "/", element: <Dashboard /> },
-  // { path: "sign-in", element: <SignIn /> },
 ]);
